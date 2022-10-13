@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"strconv"
 
 	"github.com/Ardnh/go-todolist.git/exception"
 	"github.com/Ardnh/go-todolist.git/helper"
@@ -34,11 +35,13 @@ func (service *TodolistServiceImpl) Create(ctx context.Context, request web.Crea
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	parseBool, err := strconv.ParseBool(request.IsPublished)
+	helper.PanicIfError(err)
 	todolist := domain.Todolist{
 		Author:      request.Author,
 		Title:       request.Title,
 		Description: request.Description,
-		IsPublished: request.IsPublished,
+		IsPublished: parseBool,
 	}
 
 	todolist = service.TodolistRepository.Save(ctx, tx, todolist)

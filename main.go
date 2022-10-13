@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	_ "github.com/go-sql-driver/mysql"
+
 	"github.com/Ardnh/go-todolist.git/app"
 	"github.com/Ardnh/go-todolist.git/controller"
 	"github.com/Ardnh/go-todolist.git/helper"

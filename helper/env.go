@@ -7,7 +7,7 @@ import (
 )
 
 func LoadEnvFile(key string) string {
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		PanicIfError(err)
 	}

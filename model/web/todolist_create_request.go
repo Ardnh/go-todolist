@@ -1,8 +1,8 @@
 package web
 
 type CreateTodolistRequest struct {
-	Author      string `validate:"required"`
-	Title       string `validate:"required"`
-	Description string `validate:"required"`
-	IsPublished bool   `validate:"required"`
+	Author      string `json:"author" validate:"required"`
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	IsPublished string `json:"isPublished" validate:"required"`
 }

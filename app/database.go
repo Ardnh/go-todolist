@@ -14,6 +14,7 @@ func NewDb() *sql.DB {
 	db_name := helper.LoadEnvFile("DB_NAME")
 
 	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(localhost:3306)/%s", db_username, db_password, db_name))
+
 	helper.PanicIfError(err)
 
 	db.SetMaxIdleConns(5)
