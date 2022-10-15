@@ -35,6 +35,7 @@ func (service *TodolistServiceImpl) Create(ctx context.Context, request web.Crea
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	// konversi di controller
 	parseBool, err := strconv.ParseBool(request.IsPublished)
 	helper.PanicIfError(err)
 	todolist := domain.Todolist{

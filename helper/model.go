@@ -23,3 +23,12 @@ func ToTodolistResponses(todolists []domain.Todolist) []web.TodolistResponse {
 
 	return todolistResponses
 }
+
+func ToUserResponse(user domain.User) web.UserResponse {
+	return web.UserResponse{
+		Id:        user.Id,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		UserName:  user.UserName,
+	}
+}

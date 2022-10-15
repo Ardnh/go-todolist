@@ -17,6 +17,7 @@ import (
 func main() {
 	db := app.NewDb()
 	validate := validator.New()
+
 	todolistRepository := repository.NewTodolistRepository()
 	todolistService := service.NewTodolistService(todolistRepository, db, validate)
 	todolistController := controller.NewTodolistController(todolistService)

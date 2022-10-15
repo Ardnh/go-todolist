@@ -6,6 +6,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type ListController struct {
+	todolistController controller.TodolistController
+}
+
 func NewRouter(todolistController controller.TodolistController) *httprouter.Router {
 	router := httprouter.New()
 
