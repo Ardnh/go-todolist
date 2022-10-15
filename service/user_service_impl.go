@@ -33,17 +33,23 @@ func (service *UserServiceImpl) Register(ctx context.Context, request web.Create
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	hashPassword, err := helper.GenerateHashPassword(request.Password)
+
+	if err != nil {
+		helper.PanicIfError(err)
+	}
+
 	user := domain.User{
 		FirstName: request.FirstName,
 		LastName:  request.LastName,
 		UserName:  request.UserName,
-		Password:  request.Password,
+		Password:  hashPassword,
 	}
 
 	service.userRepository.Register(ctx, tx, user)
 }
 
-func (service *UserServiceImpl) FindByUsername(ctx context.Context, request string) web.UserResponse {
+func (service *UserServiceImpl) FindByUsername(ctx context.Context, request string) (web.UserResponseByUsername, error) {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -52,7 +58,11 @@ func (service *UserServiceImpl) FindByUsername(ctx context.Context, request stri
 	defer helper.CommitOrRollback(tx)
 
 	user, err := service.userRepository.FindByUsername(ctx, tx, request)
-	helper.PanicIfError(err)
+	if err != nil {
+		helper.PanicIfError(err)
 
-	return helper.ToUserResponse(user)
+		return helper.ToUserResponseByUsername(user), err
+	}
+
+	return helper.ToUserResponseByUsername(user), nil
 }

@@ -17,7 +17,7 @@ func NewUserRepository() UserRepository {
 }
 
 func (repository *UserRepositoryImpl) FindByUsername(ctx context.Context, tx *sql.Tx, username string) (domain.User, error) {
-	SQL := "SELECT username FROM user WHERE username = ?"
+	SQL := "SELECT id, firstname, lastname, username, password FROM user WHERE username = ?"
 	rows, err := tx.QueryContext(ctx, SQL, username)
 	helper.PanicIfError(err)
 	defer rows.Close()
