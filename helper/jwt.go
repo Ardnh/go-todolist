@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -28,6 +30,22 @@ func GenerateJWTKey(id string) (string, error) {
 	return tokenString, err
 }
 
-func VerifyJWTToken(token string) {
+func VerifyJWTToken(tokenString string) {
+
+	jwtKey := LoadEnvFile("JWT_SECRECT_KEY")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtKey), nil
+	})
+
+	if token.Valid {
+		fmt.Println("You look nice today")
+	} else if errors.Is(err, jwt.ErrTokenMalformed) {
+		fmt.Println("That's not even a token")
+	} else if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
+		// Token is either expired or not active yet
+		fmt.Println("Timing is everything")
+	} else {
+		fmt.Println("Couldn't handle this token:", err)
+	}
 
 }

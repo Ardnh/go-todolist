@@ -8,6 +8,7 @@ import (
 	"github.com/Ardnh/go-todolist.git/helper"
 	"github.com/Ardnh/go-todolist.git/model/web"
 	"github.com/Ardnh/go-todolist.git/service"
+	"github.com/julienschmidt/httprouter"
 )
 
 type UserControllerImpl struct {
@@ -20,20 +21,32 @@ func NewUserController(userService service.UserService) UserController {
 	}
 }
 
-func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request *http.Request) {
+func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
 
-	var username string
-	helper.ReadFromRequestBody(request, &username)
-	user, err := controller.service.FindByUsername(request.Context(), username)
+	userLoginRequest := web.UserLoginRequest{}
+	helper.ReadFromRequestBody(request, &userLoginRequest)
+	user, err := controller.service.FindByUsername(request.Context(), userLoginRequest.Username)
 	if err != nil {
 		exception.NewNotFoundError(err.Error())
 	}
 
-	id := fmt.Sprintf("%d", user.Id)
-	token, err := helper.GenerateJWTKey(id)
-	if err != nil {
-		exception.InternalServerError(writer, request, err)
+	var tokenString string
+	if helper.CheckPassword(userLoginRequest.Password, user.Password) {
+		id := fmt.Sprintf("%d", user.Id)
+		token, err := helper.GenerateJWTKey(id)
+		if err != nil {
+			exception.InternalServerError(writer, request, err)
+		}
+
+		tokenString = token
+	} else {
+		webResponse := web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "Wrong Password",
+		}
+		helper.WriteToResponseBody(writer, webResponse)
 	}
+
 	webResponse := web.UserResponseWithToken{
 		Code:   200,
 		Status: "OK",
@@ -42,14 +55,14 @@ func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request 
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
 			UserName:  user.UserName,
-			Token:     token,
+			Token:     tokenString,
 		},
 	}
 
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
-func (controller *UserControllerImpl) Register(writer http.ResponseWriter, request *http.Request) {
+func (controller *UserControllerImpl) Register(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
 
 	userRegisterController := web.CreateUserRequest{}
 	helper.ReadFromRequestBody(request, &userRegisterController)

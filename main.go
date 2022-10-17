@@ -22,7 +22,11 @@ func main() {
 	todolistService := service.NewTodolistService(todolistRepository, db, validate)
 	todolistController := controller.NewTodolistController(todolistService)
 
-	router := app.NewRouter(todolistController)
+	userRepository := repository.NewUserRepository()
+	userService := service.NewUserService(userRepository, db, validate)
+	userController := controller.NewUserController(userService)
+
+	router := app.NewRouter(todolistController, userController)
 
 	server := http.Server{
 		Addr:    "localhost:3000",

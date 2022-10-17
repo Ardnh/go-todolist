@@ -6,11 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type ListController struct {
-	todolistController controller.TodolistController
-}
-
-func NewRouter(todolistController controller.TodolistController) *httprouter.Router {
+func NewRouter(todolistController controller.TodolistController, userController controller.UserController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/api/todolists", todolistController.FindAll)
@@ -18,6 +14,8 @@ func NewRouter(todolistController controller.TodolistController) *httprouter.Rou
 	router.POST("/api/todolist", todolistController.Create)
 	router.PUT("/api/todolist/:todolistId", todolistController.Update)
 	router.DELETE("/api/todolist/:todolistId", todolistController.Delete)
+
+	router.POST("/api/login", userController.Login)
 
 	router.PanicHandler = exception.ErrorHandler
 

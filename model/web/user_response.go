@@ -16,15 +16,15 @@ type UserResponse struct {
 }
 
 type ResponseWithToken struct {
-	Id        int
-	FirstName string
-	LastName  string
-	UserName  string
-	Token     string
+	Id        int    `json:"id"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	UserName  string `json:"username"`
+	Token     string `json:"token"`
 }
 
 type UserResponseWithToken struct {
-	Code   int
-	Status string
-	Data   ResponseWithToken
+	Code   int               `json:"code"`
+	Status string            `json:"status"`
+	Data   ResponseWithToken `json:"data"`
 }
