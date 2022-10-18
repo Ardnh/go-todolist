@@ -8,6 +8,7 @@ import (
 func ToTodolistResponse(todolist domain.Todolist) web.TodolistResponse {
 	return web.TodolistResponse{
 		Id:          todolist.Id,
+		UserId:      todolist.UserId,
 		Author:      todolist.Author,
 		Title:       todolist.Title,
 		Description: todolist.Description,

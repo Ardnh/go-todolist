@@ -16,6 +16,7 @@ func NewRouter(todolistController controller.TodolistController, userController 
 	router.DELETE("/api/todolist/:todolistId", todolistController.Delete)
 
 	router.POST("/api/login", userController.Login)
+	router.POST("/api/register", userController.Register)
 
 	router.PanicHandler = exception.ErrorHandler
 

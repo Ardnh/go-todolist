@@ -8,26 +8,42 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type Claims struct {
-	Id string
-	jwt.RegisteredClaims
-}
-
 func GenerateJWTKey(id string) (string, error) {
 
 	jwtKey := LoadEnvFile("JWT_SECRECT_KEY")
+	signingKey := []byte(jwtKey)
 	expirationTime := time.Now().Add(60 * time.Minute)
-	claims := &Claims{
-		Id: id,
-		RegisteredClaims: jwt.RegisteredClaims{
+
+	type MyCustomClaims struct {
+		Id string `json:"id"`
+		jwt.RegisteredClaims
+	}
+
+	// Create the claims
+	claims := MyCustomClaims{
+		id,
+		jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		},
+	}
+
+	// Create claims while leaving out some of the optional fields
+	claims = MyCustomClaims{
+		id,
+		jwt.RegisteredClaims{
+			// Also fixed dates can be used for the NumericDate
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	ss, err := token.SignedString(signingKey)
+	fmt.Printf("%v %v", ss, err)
 
-	return tokenString, err
+	PanicIfError(err)
+
+	return ss, err
 }
 
 func VerifyJWTToken(tokenString string) {
@@ -49,3 +65,34 @@ func VerifyJWTToken(tokenString string) {
 	}
 
 }
+
+// func GetJWT(key string, id string) {
+// 	mySigningKey := []byte(key)
+
+// 	type MyCustomClaims struct {
+// 		Id string `json:"id"`
+// 		jwt.RegisteredClaims
+// 	}
+
+// 	// Create the claims
+// 	claims := MyCustomClaims{
+// 		id,
+// 		jwt.RegisteredClaims{
+// 			// A usual scenario is to set the expiration time relative to the current time
+// 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+// 		},
+// 	}
+
+// 	// Create claims while leaving out some of the optional fields
+// 	claims = MyCustomClaims{
+// 		id,
+// 		jwt.RegisteredClaims{
+// 			// Also fixed dates can be used for the NumericDate
+// 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(60 * time.Minute)),
+// 		},
+// 	}
+
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+// 	ss, err := token.SignedString(mySigningKey)
+// 	fmt.Printf("%v %v", ss, err)
+// }

@@ -17,8 +17,8 @@ func NewTodolistRepository() TodolistRepository {
 }
 
 func (repository *TodolistRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, todolist domain.Todolist) domain.Todolist {
-	SQL := "INSERT INTO todolist( author, title, description, isPublished ) VALUE(?,?,?,?);"
-	result, err := tx.ExecContext(ctx, SQL, todolist.Author, todolist.Title, todolist.Description, todolist.IsPublished)
+	SQL := "INSERT INTO todolist( user_id, author, title, description, isPublished ) VALUE(?,?,?,?,?) ;"
+	result, err := tx.ExecContext(ctx, SQL, todolist.UserId, todolist.Author, todolist.Title, todolist.Description, todolist.IsPublished)
 	helper.PanicIfError(err)
 
 	id, err := result.LastInsertId()
@@ -30,7 +30,7 @@ func (repository *TodolistRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, 
 }
 
 func (repository *TodolistRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Todolist {
-	SQL := "SELECT id, author, title, description, isPublished FROM todolist;"
+	SQL := "SELECT * FROM todolist;"
 	rows, err := tx.QueryContext(ctx, SQL)
 	helper.PanicIfError(err)
 
@@ -39,7 +39,7 @@ func (repository *TodolistRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	var todolists []domain.Todolist
 	for rows.Next() {
 		todolist := domain.Todolist{}
-		err := rows.Scan(&todolist.Id, &todolist.Author, &todolist.Title, &todolist.Description, &todolist.IsPublished)
+		err := rows.Scan(&todolist.Id, &todolist.UserId, &todolist.Author, &todolist.Title, &todolist.Description, &todolist.IsPublished)
 		helper.PanicIfError(err)
 
 		todolists = append(todolists, todolist)
@@ -49,14 +49,14 @@ func (repository *TodolistRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 }
 
 func (repository *TodolistRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (domain.Todolist, error) {
-	SQL := "SELECT id, author, title, description, isPublished FROM todolist WHERE id = ?"
+	SQL := "SELECT id, user_id, author, title, description, isPublished FROM todolist WHERE id = ?"
 	rows, err := tx.QueryContext(ctx, SQL, id)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
 	var todolist domain.Todolist
 	if rows.Next() {
-		err := rows.Scan(&todolist.Id, &todolist.Author, &todolist.Title, &todolist.Description, &todolist.IsPublished)
+		err := rows.Scan(&todolist.Id, &todolist.UserId, &todolist.Author, &todolist.Title, &todolist.Description, &todolist.IsPublished)
 		helper.PanicIfError(err)
 		return todolist, nil
 	} else {
@@ -65,15 +65,15 @@ func (repository *TodolistRepositoryImpl) FindById(ctx context.Context, tx *sql.
 }
 
 func (repository *TodolistRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, todolist domain.Todolist) domain.Todolist {
-	SQL := "UPDATE todolist SET author = ?, title = ?, description = ?, isPublished = ? WHERE id = ?;"
-	_, err := tx.ExecContext(ctx, SQL, todolist.Author, todolist.Title, todolist.Description, todolist.IsPublished, todolist.Id)
+	SQL := "UPDATE todolist SET author = ?, title = ?, description = ?, isPublished = ? WHERE id = ? AND user_id = ?;"
+	_, err := tx.ExecContext(ctx, SQL, todolist.Author, todolist.Title, todolist.Description, todolist.IsPublished, todolist.Id, todolist.UserId)
 	helper.PanicIfError(err)
 
 	return todolist
 }
 
 func (repository *TodolistRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, todolist domain.Todolist) {
-	SQL := "DELETE FROM todolist WHERE id = ?"
-	_, err := tx.ExecContext(ctx, SQL, todolist.Id)
+	SQL := "DELETE FROM todolist WHERE id = ? AND user_id = ?;"
+	_, err := tx.ExecContext(ctx, SQL, todolist.Id, todolist.UserId)
 	helper.PanicIfError(err)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/Ardnh/go-todolist.git/exception"
 	"github.com/Ardnh/go-todolist.git/helper"
 	"github.com/Ardnh/go-todolist.git/model/domain"
 	"github.com/Ardnh/go-todolist.git/model/web"
@@ -50,8 +51,6 @@ func (service *UserServiceImpl) Register(ctx context.Context, request web.Create
 }
 
 func (service *UserServiceImpl) FindByUsername(ctx context.Context, request string) (web.UserResponseByUsername, error) {
-	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
 
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
@@ -60,8 +59,7 @@ func (service *UserServiceImpl) FindByUsername(ctx context.Context, request stri
 	user, err := service.userRepository.FindByUsername(ctx, tx, request)
 	if err != nil {
 		helper.PanicIfError(err)
-
-		return helper.ToUserResponseByUsername(user), err
+		exception.NewNotFoundError(err.Error())
 	}
 
 	return helper.ToUserResponseByUsername(user), nil

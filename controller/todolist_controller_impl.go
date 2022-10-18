@@ -20,6 +20,7 @@ func NewTodolistController(todolistService service.TodolistService) TodolistCont
 	}
 }
 
+// Authentication required
 func (controller *TodolistControllerImpl) Create(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
 	todolistCreateRequest := web.CreateTodolistRequest{}
 	helper.ReadFromRequestBody(request, &todolistCreateRequest)
@@ -35,6 +36,7 @@ func (controller *TodolistControllerImpl) Create(writer http.ResponseWriter, req
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
+// Authentication required
 func (controller *TodolistControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	todolistUpdateRequest := web.UpdateTodolistRequest{}
 	helper.ReadFromRequestBody(request, &todolistUpdateRequest)
@@ -44,7 +46,6 @@ func (controller *TodolistControllerImpl) Update(writer http.ResponseWriter, req
 	helper.PanicIfError(err)
 
 	todolistUpdateRequest.Id = id
-
 	todolistResponse := controller.service.Update(request.Context(), todolistUpdateRequest)
 	webResponse := web.WebResponse{
 		Code:   200,
@@ -55,6 +56,7 @@ func (controller *TodolistControllerImpl) Update(writer http.ResponseWriter, req
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
+// Authentication required
 func (controller *TodolistControllerImpl) Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 
 	todolistId := params.ByName("todolistId")
@@ -89,6 +91,7 @@ func (controller *TodolistControllerImpl) FindById(writer http.ResponseWriter, r
 
 func (controller *TodolistControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	todolistResponse := controller.service.FindAll(request.Context())
+
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",

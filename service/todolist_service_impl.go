@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"strconv"
 
 	"github.com/Ardnh/go-todolist.git/exception"
 	"github.com/Ardnh/go-todolist.git/helper"
@@ -35,14 +34,13 @@ func (service *TodolistServiceImpl) Create(ctx context.Context, request web.Crea
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	// konversi di controller
-	parseBool, err := strconv.ParseBool(request.IsPublished)
 	helper.PanicIfError(err)
 	todolist := domain.Todolist{
+		UserId:      request.UserId,
 		Author:      request.Author,
 		Title:       request.Title,
 		Description: request.Description,
-		IsPublished: parseBool,
+		IsPublished: request.IsPublished,
 	}
 
 	todolist = service.TodolistRepository.Save(ctx, tx, todolist)
@@ -58,6 +56,7 @@ func (service *TodolistServiceImpl) Update(ctx context.Context, request web.Upda
 	defer helper.CommitOrRollback(tx)
 
 	todolist, err := service.TodolistRepository.FindById(ctx, tx, request.Id)
+
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
 	}
@@ -103,5 +102,5 @@ func (service *TodolistServiceImpl) FindById(ctx context.Context, todolistId int
 		helper.PanicIfError(err)
 		exception.NewNotFoundError(err.Error())
 	}
-	return helper.ToTodolistResponse(todolist)
+	return web.TodolistResponse(todolist)
 }

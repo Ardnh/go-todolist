@@ -30,7 +30,8 @@ func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request 
 		exception.NewNotFoundError(err.Error())
 	}
 
-	var tokenString string
+	fmt.Println(user)
+
 	if helper.CheckPassword(userLoginRequest.Password, user.Password) {
 		id := fmt.Sprintf("%d", user.Id)
 		token, err := helper.GenerateJWTKey(id)
@@ -38,7 +39,19 @@ func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request 
 			exception.InternalServerError(writer, request, err)
 		}
 
-		tokenString = token
+		webResponse := web.UserResponseWithToken{
+			Code:   200,
+			Status: "OK",
+			Data: web.ResponseWithToken{
+				Id:        user.Id,
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				UserName:  user.UserName,
+				Token:     token,
+			},
+		}
+
+		helper.WriteToResponseBody(writer, webResponse)
 	} else {
 		webResponse := web.WebResponse{
 			Code:   http.StatusBadRequest,
@@ -47,19 +60,6 @@ func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request 
 		helper.WriteToResponseBody(writer, webResponse)
 	}
 
-	webResponse := web.UserResponseWithToken{
-		Code:   200,
-		Status: "OK",
-		Data: web.ResponseWithToken{
-			Id:        user.Id,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			UserName:  user.UserName,
-			Token:     tokenString,
-		},
-	}
-
-	helper.WriteToResponseBody(writer, webResponse)
 }
 
 func (controller *UserControllerImpl) Register(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {

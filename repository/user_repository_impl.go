@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"errors"
 
+	// "fmt"
+
 	"github.com/Ardnh/go-todolist.git/helper"
 	"github.com/Ardnh/go-todolist.git/model/domain"
 )
@@ -16,9 +18,10 @@ func NewUserRepository() UserRepository {
 	return &UserRepositoryImpl{}
 }
 
-func (repository *UserRepositoryImpl) FindByUsername(ctx context.Context, tx *sql.Tx, username string) (domain.User, error) {
-	SQL := "SELECT id, firstname, lastname, username, password FROM user WHERE username = ?"
-	rows, err := tx.QueryContext(ctx, SQL, username)
+func (repository *UserRepositoryImpl) FindByUsername(ctx context.Context, tx *sql.Tx, name string) (domain.User, error) {
+	SQL := "SELECT id, firstname, lastname, username, password FROM user WHERE username = ?;"
+	// rows, err := tx.QueryContext(ctx, SQL, fmt.Sprintf("%s", name))
+	rows, err := tx.QueryContext(ctx, SQL, name)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
