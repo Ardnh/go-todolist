@@ -39,7 +39,6 @@ func GenerateJWTKey(id string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString(signingKey)
-	fmt.Printf("%v %v", ss, err)
 
 	PanicIfError(err)
 

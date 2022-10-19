@@ -30,8 +30,6 @@ func (controller *UserControllerImpl) Login(writer http.ResponseWriter, request 
 		exception.NewNotFoundError(err.Error())
 	}
 
-	fmt.Println(user)
-
 	if helper.CheckPassword(userLoginRequest.Password, user.Password) {
 		id := fmt.Sprintf("%d", user.Id)
 		token, err := helper.GenerateJWTKey(id)
