@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/Ardnh/go-todolist.git/helper"
@@ -43,9 +42,6 @@ func verifyJWTToken(tokenString string) (bool, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtKey), nil
 	})
-
-	fmt.Println("ini token")
-	fmt.Println(token)
 
 	if token.Valid {
 		return true, nil

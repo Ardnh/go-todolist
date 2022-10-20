@@ -1,14 +1,27 @@
 package app
 
 import (
+	"database/sql"
+
 	"github.com/Ardnh/go-todolist.git/controller"
 	"github.com/Ardnh/go-todolist.git/exception"
 	"github.com/Ardnh/go-todolist.git/middleware"
+	"github.com/Ardnh/go-todolist.git/repository"
+	"github.com/Ardnh/go-todolist.git/service"
+	"github.com/go-playground/validator/v10"
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter(todolistController controller.TodolistController, userController controller.UserController) *httprouter.Router {
+func NewRouter(db *sql.DB, validate *validator.Validate) *httprouter.Router {
 	router := httprouter.New()
+
+	todolistRepository := repository.NewTodolistRepository()
+	todolistService := service.NewTodolistService(todolistRepository, db, validate)
+	todolistController := controller.NewTodolistController(todolistService)
+
+	userRepository := repository.NewUserRepository()
+	userService := service.NewUserService(userRepository, db, validate)
+	userController := controller.NewUserController(userService)
 
 	router.GET("/api/todolists", todolistController.FindAll)
 	router.GET("/api/todolist/:todolistId", todolistController.FindById)
