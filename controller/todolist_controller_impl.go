@@ -22,22 +22,22 @@ func NewTodolistController(todolistService service.TodolistService) TodolistCont
 
 // Authentication required
 func (controller *TodolistControllerImpl) Create(writer http.ResponseWriter, request *http.Request, param httprouter.Params) {
+
 	todolistCreateRequest := web.CreateTodolistRequest{}
 	helper.ReadFromRequestBody(request, &todolistCreateRequest)
 
 	todolistResponse := controller.service.Create(request.Context(), todolistCreateRequest)
-
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
 		Data:   todolistResponse,
 	}
-
 	helper.WriteToResponseBody(writer, webResponse)
 }
 
 // Authentication required
 func (controller *TodolistControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+
 	todolistUpdateRequest := web.UpdateTodolistRequest{}
 	helper.ReadFromRequestBody(request, &todolistUpdateRequest)
 
@@ -90,6 +90,7 @@ func (controller *TodolistControllerImpl) FindById(writer http.ResponseWriter, r
 }
 
 func (controller *TodolistControllerImpl) FindAll(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+
 	todolistResponse := controller.service.FindAll(request.Context())
 
 	webResponse := web.WebResponse{

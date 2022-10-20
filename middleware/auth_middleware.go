@@ -2,11 +2,13 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Ardnh/go-todolist.git/helper"
 	"github.com/Ardnh/go-todolist.git/model/web"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/julienschmidt/httprouter"
 )
 
 type AuthMiddleware struct {
@@ -35,42 +37,52 @@ func (middleware *AuthMiddleware) ServeHTTP(writer http.ResponseWriter, request 
 	}
 }
 
-func VerifyJWTToken(writer http.ResponseWriter, request *http.Request) bool {
+func verifyJWTToken(tokenString string) (bool, error) {
 
 	jwtKey := helper.LoadEnvFile("JWT_SECRECT_KEY")
-	tokenString := request.Header.Get("X-API-KEY")
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtKey), nil
 	})
 
+	fmt.Println("ini token")
+	fmt.Println(token)
+
 	if token.Valid {
-		return true
+		return true, nil
 	} else if errors.Is(err, jwt.ErrTokenMalformed) {
-		webResponse := web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data:   jwt.ErrTokenMalformed,
-		}
-
-		helper.WriteToResponseBody(writer, webResponse)
-		return false
+		return false, jwt.ErrTokenMalformed
 	} else if errors.Is(err, jwt.ErrTokenExpired) || errors.Is(err, jwt.ErrTokenNotValidYet) {
-		webResponse := web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data:   jwt.ErrTokenExpired,
-		}
-
-		helper.WriteToResponseBody(writer, webResponse)
-		return false
+		return false, jwt.ErrTokenExpired
 	} else {
-		webResponse := web.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "BAD REQUEST",
-		}
-
-		helper.WriteToResponseBody(writer, webResponse)
-		return false
+		return false, jwt.ErrTokenNotValidYet
 	}
+}
 
+func AuthCheck(h httprouter.Handle) httprouter.Handle {
+	return func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+		tokenString := request.Header.Get("X-API-KEY")
+
+		if tokenString != "" {
+			ok, err := verifyJWTToken(tokenString)
+			if ok && err == nil {
+				h(writer, request, params)
+			} else {
+				webResponse := web.WebResponse{
+					Code:   http.StatusInternalServerError,
+					Status: "INTERNAL SERVER ERROR",
+					Data:   err,
+				}
+
+				helper.WriteToResponseBody(writer, webResponse)
+			}
+
+		} else {
+			webResponse := web.WebResponse{
+				Code:   http.StatusUnauthorized,
+				Status: "UNAUTHORIZED",
+			}
+
+			helper.WriteToResponseBody(writer, webResponse)
+		}
+	}
 }
