@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/Ardnh/go-todolist.git/helper"
@@ -60,9 +61,11 @@ func AuthCheck(h httprouter.Handle) httprouter.Handle {
 
 		if tokenString != "" {
 			ok, err := verifyJWTToken(tokenString)
-			if ok && err == nil {
-				h(writer, request, params)
-			} else {
+
+			fmt.Println(ok)
+			fmt.Println(err)
+
+			if !ok && err != nil {
 				webResponse := web.WebResponse{
 					Code:   http.StatusInternalServerError,
 					Status: "INTERNAL SERVER ERROR",
@@ -70,6 +73,8 @@ func AuthCheck(h httprouter.Handle) httprouter.Handle {
 				}
 
 				helper.WriteToResponseBody(writer, webResponse)
+			} else {
+				h(writer, request, params)
 			}
 
 		} else {

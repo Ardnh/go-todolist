@@ -48,9 +48,9 @@ func (repository *TodolistRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	return todolists
 }
 
-func (repository *TodolistRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (domain.Todolist, error) {
+func (repository *TodolistRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, idTodolist int) (domain.Todolist, error) {
 	SQL := "SELECT id, user_id, author, title, description, isPublished FROM todolist WHERE id = ?"
-	rows, err := tx.QueryContext(ctx, SQL, id)
+	rows, err := tx.QueryContext(ctx, SQL, idTodolist)
 	helper.PanicIfError(err)
 	defer rows.Close()
 

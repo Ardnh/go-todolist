@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/Ardnh/go-todolist.git/exception"
 	"github.com/Ardnh/go-todolist.git/helper"
@@ -55,7 +56,11 @@ func (service *TodolistServiceImpl) Update(ctx context.Context, request web.Upda
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
+	fmt.Println(request)
+
 	todolist, err := service.TodolistRepository.FindById(ctx, tx, request.Id)
+
+	fmt.Println(todolist)
 
 	if err != nil {
 		panic(exception.NewNotFoundError(err.Error()))
